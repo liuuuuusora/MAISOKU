@@ -56,56 +56,63 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
 
   return (
     <div className="preview-scaler-container">
-      <div className="print-area flex flex-col bg-white border border-slate-300">
+      <div className="print-area flex flex-col bg-white border border-slate-200 shadow-xl overflow-hidden">
         
-        {/* PREMIUM HEADER */}
-        <div className="bg-[#1e293b] text-white px-10 py-6 flex justify-between items-center shrink-0 border-b-4 border-indigo-500">
-          <div className="flex-1">
-            <h1 className="text-2xl font-black tracking-tight leading-tight uppercase">{data.propertyName || "PROPERTY INFORMATION"}</h1>
-            <p className="text-[9px] opacity-40 font-bold tracking-[0.3em] mt-1">SORA REAL ESTATE INVESTMENT PORTFOLIO</p>
+        {/* HEADER: CLEAN & HIGH-END */}
+        <div className="bg-[#f8fafc] px-10 py-6 flex justify-between items-center shrink-0 border-b border-slate-200">
+          <div className="flex-1 border-l-4 border-indigo-600 pl-6">
+            <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase leading-none">{data.propertyName || "PROPERTY INFORMATION"}</h1>
+            <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] mt-2">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
           </div>
-          <div className="text-right border-l border-white/10 pl-10">
-            <p className="text-[10px] opacity-70 font-black mb-1 uppercase tracking-widest">{labels.price}</p>
-            <p className="text-4xl font-black text-yellow-400 tabular-nums">{data.price}</p>
+          <div className="text-right">
+            <p className="text-[9px] text-slate-400 font-black mb-1 uppercase tracking-widest">{labels.price}</p>
+            <p className="text-4xl font-black text-indigo-600 tabular-nums">{data.price}</p>
           </div>
         </div>
 
         {/* CONTENT AREA */}
-        <div className="flex-1 p-10 grid grid-cols-12 gap-10 overflow-hidden">
+        <div className="flex-1 p-10 grid grid-cols-12 gap-10 overflow-hidden bg-white">
           
           {/* LEFT: IMAGE & DESC */}
           <div className="col-span-5 flex flex-col gap-6">
-            <div className="aspect-[4/3] bg-slate-100 border border-slate-200 relative rounded-lg overflow-hidden flex items-center justify-center shadow-inner group">
+            <div className="aspect-[4/3] bg-slate-50 border border-slate-100 relative rounded-lg overflow-hidden flex items-center justify-center group shadow-sm">
               {originalImage ? (
-                /* Object-fit contain ensures the whole image is visible; can use cover if you want full bleed */
                 <img src={originalImage} alt="Property" className="w-full h-full object-contain" />
               ) : (
-                <div className="text-slate-300 font-black text-xs uppercase">Photo Area</div>
+                <div className="text-slate-200 font-black text-xs uppercase tracking-widest">Image Area</div>
               )}
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 flex-1">
-              <h3 className="text-[10px] font-black text-indigo-900 mb-3 uppercase tracking-widest border-l-4 border-indigo-500 pl-3">{labels.description}</h3>
-              <p className="text-[11px] leading-relaxed text-slate-600 font-medium italic mb-6">"{data.description}"</p>
+            <div className="flex-1 space-y-6">
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-4 h-[1px] bg-slate-200"></span> {labels.description}
+                </h3>
+                <p className="text-[11px] leading-relaxed text-slate-600 font-medium italic">"{data.description}"</p>
+              </section>
               
-              <h3 className="text-[10px] font-black text-indigo-900 mb-3 uppercase tracking-widest border-l-4 border-indigo-500 pl-3">{labels.facilities}</h3>
-              <div className="text-[10px] text-slate-700 leading-relaxed font-medium">
-                {data.facilities || "-"}
-              </div>
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-4 h-[1px] bg-slate-200"></span> {labels.facilities}
+                </h3>
+                <div className="text-[10px] text-slate-500 leading-relaxed font-semibold">
+                  {data.facilities || "-"}
+                </div>
+              </section>
             </div>
           </div>
 
-          {/* RIGHT: SPECS */}
+          {/* RIGHT: SPECS TABLE */}
           <div className="col-span-7 flex flex-col gap-6">
-            <div className="border-t-2 border-slate-900">
+            <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm">
               {tableRows.map((row, ridx) => (
-                <div key={ridx} className="flex min-h-[36px]">
+                <div key={ridx} className="flex min-h-[38px]">
                   {row.map((cell, cidx) => (
-                    <div key={cidx} className={`flex border-b border-slate-200 ${cell.span === 2 ? 'w-full' : 'w-1/2'}`}>
-                      <div className="w-24 bg-slate-50 text-[9px] font-black flex items-center px-4 text-slate-400 uppercase shrink-0 border-r border-slate-100">
+                    <div key={cidx} className={`flex border-b border-slate-100 ${cell.span === 2 ? 'w-full' : 'w-1/2'} ${ridx === tableRows.length - 1 ? 'border-b-0' : ''}`}>
+                      <div className="w-24 bg-slate-50/80 text-[9px] font-black flex items-center px-4 text-slate-400 uppercase shrink-0 border-r border-slate-100">
                         {cell.l}
                       </div>
-                      <div className={`flex-1 flex items-center px-4 py-2 text-[11px] font-bold ${cell.h ? 'text-indigo-600' : 'text-slate-900'}`}>
+                      <div className={`flex-1 flex items-center px-4 py-2 text-[11px] font-bold ${cell.h ? 'text-indigo-600' : 'text-slate-700'}`}>
                         {cell.v || "-"}
                       </div>
                     </div>
@@ -114,14 +121,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
               ))}
             </div>
 
-            <div className="flex-1 bg-white flex flex-col">
-              <h3 className="text-[11px] font-black text-slate-900 mb-4 uppercase tracking-[0.2em] flex items-center gap-3">
-                <span className="w-8 h-[2px] bg-indigo-500"></span> {labels.features}
+            <div className="flex-1 flex flex-col pt-2">
+              <h3 className="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] flex items-center gap-3">
+                <span className="w-8 h-[1px] bg-indigo-500"></span> {labels.features}
               </h3>
               <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 {(data.features || []).map((f, i) => (
-                  <div key={i} className="text-[10px] flex items-center gap-2 text-slate-600 font-bold p-2 bg-slate-50 rounded border-l-2 border-indigo-200">
-                    <span className="text-indigo-500 text-[6px]">●</span> {f}
+                  <div key={i} className="text-[10px] flex items-center gap-2 text-slate-600 font-bold p-2.5 bg-slate-50/50 rounded-md border border-slate-100">
+                    <span className="text-indigo-400 text-[6px]">●</span> {f}
                   </div>
                 ))}
               </div>
@@ -129,48 +136,49 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
           </div>
         </div>
 
-        {/* MODERN CLEAN FOOTER (NO TABLE) */}
-        <div className="bg-[#1e293b] text-white px-10 py-8 flex justify-between items-end shrink-0 mt-auto border-t border-white/10">
+        {/* CORPORATE FOOTER: LIGHT, BALANCED, AIRY DESIGN */}
+        <div className="bg-slate-50 border-t border-slate-200 px-10 py-8 grid grid-cols-3 gap-8 shrink-0 mt-auto">
           
-          {/* Brand/Identity */}
-          <div className="flex flex-col gap-4">
+          {/* 1. Left: Brand Identity */}
+          <div className="flex flex-col gap-3">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-600 text-white font-black flex items-center justify-center text-2xl rounded shadow-lg">S</div>
+              <div className="w-12 h-12 bg-white border border-slate-200 text-indigo-600 font-black flex items-center justify-center text-2xl rounded-lg shadow-sm">S</div>
               <div>
-                <p className="font-black text-xl tracking-tight leading-none text-white">{companyInfo.name}</p>
-                <p className="text-[9px] text-indigo-400 mt-1 uppercase tracking-widest font-black">{companyInfo.license}</p>
+                <p className="font-black text-lg tracking-tight leading-tight text-slate-800">{companyInfo.name}</p>
+                <p className="text-[9px] text-indigo-500 font-black tracking-widest uppercase mt-0.5">{companyInfo.license}</p>
               </div>
             </div>
-            <div className="text-[9px] text-slate-400 font-medium space-y-0.5">
+            <div className="text-[8px] text-slate-400 font-bold leading-relaxed space-y-0.5 mt-1">
               <p>{companyInfo.assoc}</p>
               <p>{companyInfo.branch}</p>
             </div>
           </div>
 
-          {/* Details & Contact */}
-          <div className="flex gap-10">
-            <div className="text-right space-y-4">
-              <div className="space-y-0.5">
-                <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Office Address</p>
-                <p className="text-[11px] font-bold text-slate-200">〒{companyInfo.zip} {companyInfo.addr1}</p>
-                <p className="text-[11px] font-bold text-slate-200">{companyInfo.addr2}</p>
+          {/* 2. Middle: Address Info */}
+          <div className="border-x border-slate-200 px-8 flex flex-col justify-center gap-1.5">
+            <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase mb-1">Office Location</p>
+            <p className="text-[11px] font-bold text-slate-600 flex items-center gap-2">
+              <span className="text-indigo-400">〒</span> {companyInfo.zip}
+            </p>
+            <p className="text-[11px] font-bold text-slate-600">{companyInfo.addr1}</p>
+            <p className="text-[11px] font-bold text-slate-600">{companyInfo.addr2}</p>
+          </div>
+
+          {/* 3. Right: Contact & Digital */}
+          <div className="flex flex-col justify-between pl-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase">Phone</p>
+                <p className="text-[11px] font-black text-slate-700">{companyInfo.tel}</p>
               </div>
-              <div className="flex gap-6 justify-end">
-                <div>
-                  <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Phone</p>
-                  <p className="text-[12px] font-black text-white">{companyInfo.tel}</p>
-                </div>
-                <div>
-                  <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Fax</p>
-                  <p className="text-[12px] font-black text-white">{companyInfo.fax}</p>
-                </div>
+              <div>
+                <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase">Fax</p>
+                <p className="text-[11px] font-black text-slate-700">{companyInfo.fax}</p>
               </div>
             </div>
-            
-            <div className="flex flex-col justify-end border-l border-white/10 pl-10">
-              <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase mb-1">Web & Mail</p>
-              <p className="text-[11px] font-black text-white">{companyInfo.web}</p>
-              <p className="text-[11px] font-bold text-indigo-300">{companyInfo.email}</p>
+            <div className="pt-3 border-t border-slate-100 flex flex-col gap-0.5">
+              <p className="text-[10px] font-bold text-indigo-600">{companyInfo.web}</p>
+              <p className="text-[10px] font-bold text-slate-500">{companyInfo.email}</p>
             </div>
           </div>
         </div>

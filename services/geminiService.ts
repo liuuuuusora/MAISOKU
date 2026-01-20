@@ -22,17 +22,18 @@ export const extractAndTranslateMaisoku = async (
   const MODEL_NAME = 'gemini-3-flash-preview';
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are an expert Real Estate Consultant. Extract and Translate EVERYTHING from this Japanese property flyer (Maisoku) into ${targetLang}.
-
-  CRITICAL IMAGE TASK:
-  Your output JSON should include "extractedImage" as the SAME base64 data provided, BUT your internal logic should focus on understanding the visual context.
+  const prompt = `You are a professional real estate data analyst. 
+  1. Analyze the Japanese property flyer (Maisoku).
+  2. Extract all details and translate them perfectly into ${targetLang}.
+  3. Visual Recognition: Focus on identifying the property photos (facade, rooms, floorplan) separately from text overlays.
   
   STRICT TRANSLATION RULES:
-  1. ABSOLUTELY NO JAPANESE characters in output. 
-  2. "restrictions": Identify and translate zoning/building limits like "用途地域", "防火地域", "建蔽率/容積率" fully.
-  3. "facilities": Translate all equipment terms into ${targetLang}.
+  - NO JAPANESE characters in the output JSON. 
+  - Translate property terminology accurately (e.g., "RC" -> "Reinforced Concrete").
+  - "restrictions": Fully translate Zoning laws (用途地域), Building coverage ratios, etc.
+  - "facilities": List specific equipment like Auto-lock, System Kitchen, etc.
 
-  JSON structure:
+  Output MUST be valid JSON:
   {
      "propertyName": "Property Name",
      "price": "Price with currency",
@@ -48,8 +49,8 @@ export const extractAndTranslateMaisoku = async (
      "facilities": "Facilities list",
      "floor": "Floor level",
      "restrictions": "Zoning and Building Restrictions",
-     "features": ["Feature 1", "Feature 2"],
-     "description": "Short marketing summary"
+     "features": ["Key Feature 1", "Key Feature 2"],
+     "description": "Professional real estate summary"
   }`;
 
   try {
