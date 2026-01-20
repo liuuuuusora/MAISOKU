@@ -12,8 +12,9 @@ export const extractAndTranslateMaisoku = async (
     throw new Error("API_KEY_MISSING: 找不到 API 金鑰。請在設定中添加 API_KEY 環境變數。");
   }
 
-  // gemini-1.5-flash is currently the most reliable for high-volume free tier usage
-  const MODEL_NAME = 'gemini-1.5-flash';
+  // Use 'gemini-2.0-flash' which is the current stable reference for the latest flash model
+  // This avoids the 404 error and provides the best performance for OCR/Translation
+  const MODEL_NAME = 'gemini-2.0-flash';
   const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
@@ -37,12 +38,15 @@ export const extractAndTranslateMaisoku = async (
   try {
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
-      contents: {
-        parts: [
-          { inlineData: { data: base64Image, mimeType: 'image/jpeg' } },
-          { text: prompt }
-        ]
-      },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { inlineData: { data: base64Image, mimeType: 'image/jpeg' } },
+            { text: prompt }
+          ]
+        }
+      ],
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -73,13 +77,18 @@ export const extractAndTranslateMaisoku = async (
   } catch (error: any) {
     console.error("Gemini API Error details:", error);
     
+    // Handle model not found or other API versioning issues
+    if (error.message?.includes("404") || error.message?.includes("not found")) {
+      throw new Error("MODEL_NOT_FOUND: 無法連線到指定的 AI 模型。這通常是 API 版本更新導致，請聯絡開發者更新模型名稱。");
+    }
+    
     // Detailed check for 429 quota error
     if (error.message?.includes("429") || error.status === "RESOURCE_EXHAUSTED") {
-      throw new Error("QUOTA_EXHAUSTED: 免費額度暫時用完。請「等待 60 秒」後再點擊一次，這是 Google 免費 API 的限制。");
+      throw new Error("QUOTA_EXHAUSTED: 免費額度暫時用完。請「等待 60 秒」後再重試。這不是程式錯誤，而是 Google 的免費流量限制。");
     }
     
     if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("403")) {
-      throw new Error("INVALID_KEY: API 金鑰無效或沒有權限，請確認 API Key 設定是否正確。");
+      throw new Error("INVALID_KEY: API 金鑰無效。請確認您的 API Key 是否正確且已啟用。");
     }
     
     throw new Error(error.message || "解析失敗。請確認圖片清晰度或稍後再試。");
