@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイソク AI 翻訳機</title>
+    <title>マイソク AI 翻譯機</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1040/1040216.png">
@@ -12,10 +12,10 @@
     <script type="importmap">
 {
   "imports": {
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
@@ -23,12 +23,12 @@
 </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style>
         body { font-family: 'Inter', 'Noto Sans JP', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
-        #root { min-height: 100vh; }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
         @media print {
             .no-print { display: none !important; }
             .print-area { padding: 0 !important; margin: 0 !important; box-shadow: none !important; width: 210mm !important; height: auto !important; }
@@ -37,15 +37,30 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading fallback to confirm page is working -->
+      <div id="app-loading" style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; gap:16px; color:#6366f1;">
+        <svg style="width:48px; height:48px; animation: spin 1s linear infinite;" viewBox="0 0 24 24">
+          <circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+          <path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p style="font-weight:600;">Loading AI Application...</p>
+      </div>
+    </div>
     
-    <!-- Using type="module" is critical for index.tsx to work with importmap -->
-    <script type="module" src="./index.tsx"></script>
+    <script type="module">
+      import "./index.tsx";
+      // Once index.tsx executes, the loading div will be replaced by React
+    </script>
+
+    <style>
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
 
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW failed', err));
+          navigator.serviceWorker.register('./sw.js').catch(err => console.debug('SW silent fail'));
         });
       }
     </script>
