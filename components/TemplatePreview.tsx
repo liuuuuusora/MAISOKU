@@ -30,7 +30,6 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
     originalRef: isChinese ? "參考原圖" : "Original"
   }), [isChinese]);
 
-  // Company Information based on provided image
   const companyInfo = useMemo(() => ({
     name: isChinese ? "SORA 株式會社" : "SORA Co., Ltd.",
     zip: "540-0058",
@@ -57,54 +56,56 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
 
   return (
     <div className="preview-scaler-container">
-      <div className="print-area flex flex-col bg-white border border-slate-400">
+      <div className="print-area flex flex-col bg-white border border-slate-300">
         
-        {/* HEADER */}
-        <div className="bg-[#3b608e] text-white px-8 py-4 flex justify-between items-center shrink-0">
+        {/* PREMIUM HEADER */}
+        <div className="bg-[#1e293b] text-white px-10 py-6 flex justify-between items-center shrink-0 border-b-4 border-indigo-500">
           <div className="flex-1">
             <h1 className="text-2xl font-black tracking-tight leading-tight uppercase">{data.propertyName || "PROPERTY INFORMATION"}</h1>
+            <p className="text-[9px] opacity-40 font-bold tracking-[0.3em] mt-1">SORA REAL ESTATE INVESTMENT PORTFOLIO</p>
           </div>
-          <div className="text-right border-l border-white/20 pl-8 shrink-0">
-            <p className="text-[9px] opacity-70 font-black mb-1 uppercase tracking-widest">{labels.price}</p>
-            <p className="text-3xl font-black text-yellow-300 tabular-nums">{data.price}</p>
+          <div className="text-right border-l border-white/10 pl-10">
+            <p className="text-[10px] opacity-70 font-black mb-1 uppercase tracking-widest">{labels.price}</p>
+            <p className="text-4xl font-black text-yellow-400 tabular-nums">{data.price}</p>
           </div>
         </div>
 
-        {/* MAIN BODY */}
-        <div className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden">
+        {/* CONTENT AREA */}
+        <div className="flex-1 p-10 grid grid-cols-12 gap-10 overflow-hidden">
           
-          {/* LEFT: PHOTO & FACILITIES */}
-          <div className="col-span-5 flex flex-col gap-4">
-            <div className="aspect-video bg-slate-50 border border-slate-200 relative rounded overflow-hidden flex items-center justify-center">
+          {/* LEFT: IMAGE & DESC */}
+          <div className="col-span-5 flex flex-col gap-6">
+            <div className="aspect-[4/3] bg-slate-100 border border-slate-200 relative rounded-lg overflow-hidden flex items-center justify-center shadow-inner group">
               {originalImage ? (
+                /* Object-fit contain ensures the whole image is visible; can use cover if you want full bleed */
                 <img src={originalImage} alt="Property" className="w-full h-full object-contain" />
               ) : (
-                <div className="text-slate-300 font-bold text-[10px]">PHOTO</div>
+                <div className="text-slate-300 font-black text-xs uppercase">Photo Area</div>
               )}
             </div>
 
-            <div className="bg-slate-50 p-4 rounded border border-slate-100 flex-1">
-              <h3 className="text-[10px] font-black text-slate-800 mb-2 uppercase border-b border-slate-900 pb-1">{labels.description}</h3>
-              <p className="text-[11px] leading-relaxed text-slate-600 font-medium italic mb-4">"{data.description}"</p>
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 flex-1">
+              <h3 className="text-[10px] font-black text-indigo-900 mb-3 uppercase tracking-widest border-l-4 border-indigo-500 pl-3">{labels.description}</h3>
+              <p className="text-[11px] leading-relaxed text-slate-600 font-medium italic mb-6">"{data.description}"</p>
               
-              <h3 className="text-[10px] font-black text-slate-800 mb-2 uppercase border-b border-slate-900 pb-1">{labels.facilities}</h3>
-              <div className="text-[10px] text-slate-700 leading-snug font-medium line-clamp-6">
+              <h3 className="text-[10px] font-black text-indigo-900 mb-3 uppercase tracking-widest border-l-4 border-indigo-500 pl-3">{labels.facilities}</h3>
+              <div className="text-[10px] text-slate-700 leading-relaxed font-medium">
                 {data.facilities || "-"}
               </div>
             </div>
           </div>
 
-          {/* RIGHT: SPEC TABLE & FEATURES */}
-          <div className="col-span-7 flex flex-col gap-4">
-            <div className="border-t border-l border-slate-900">
+          {/* RIGHT: SPECS */}
+          <div className="col-span-7 flex flex-col gap-6">
+            <div className="border-t-2 border-slate-900">
               {tableRows.map((row, ridx) => (
-                <div key={ridx} className="flex min-h-[30px]">
+                <div key={ridx} className="flex min-h-[36px]">
                   {row.map((cell, cidx) => (
-                    <div key={cidx} className={`flex border-r border-b border-slate-900 ${cell.span === 2 ? 'w-full' : 'w-1/2'}`}>
-                      <div className="w-20 bg-[#3b608e] text-[8px] text-white font-black flex items-center px-2 border-r border-slate-900 uppercase shrink-0">
+                    <div key={cidx} className={`flex border-b border-slate-200 ${cell.span === 2 ? 'w-full' : 'w-1/2'}`}>
+                      <div className="w-24 bg-slate-50 text-[9px] font-black flex items-center px-4 text-slate-400 uppercase shrink-0 border-r border-slate-100">
                         {cell.l}
                       </div>
-                      <div className={`flex-1 flex items-center px-2 py-1 text-[10px] font-bold ${cell.h ? 'text-indigo-700' : 'text-slate-900'}`}>
+                      <div className={`flex-1 flex items-center px-4 py-2 text-[11px] font-bold ${cell.h ? 'text-indigo-600' : 'text-slate-900'}`}>
                         {cell.v || "-"}
                       </div>
                     </div>
@@ -113,14 +114,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
               ))}
             </div>
 
-            <div className="flex-1 bg-white border border-slate-200 p-3 rounded flex flex-col min-h-0">
-              <h3 className="text-[10px] font-black text-slate-900 mb-2 uppercase tracking-widest flex items-center gap-2">
-                <span className="w-1.5 h-3 bg-[#3b608e]"></span> {labels.features}
+            <div className="flex-1 bg-white flex flex-col">
+              <h3 className="text-[11px] font-black text-slate-900 mb-4 uppercase tracking-[0.2em] flex items-center gap-3">
+                <span className="w-8 h-[2px] bg-indigo-500"></span> {labels.features}
               </h3>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 {(data.features || []).map((f, i) => (
-                  <div key={i} className="text-[9px] flex items-start gap-1.5 text-slate-600 font-bold pb-1 border-b border-slate-50">
-                    <span className="text-[#3b608e] mt-0.5">■</span> {f}
+                  <div key={i} className="text-[10px] flex items-center gap-2 text-slate-600 font-bold p-2 bg-slate-50 rounded border-l-2 border-indigo-200">
+                    <span className="text-indigo-500 text-[6px]">●</span> {f}
                   </div>
                 ))}
               </div>
@@ -128,40 +129,48 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
           </div>
         </div>
 
-        {/* CORPORATE FOOTER - MATCHING PROVIDED IMAGE STYLE */}
-        <div className="grid grid-cols-12 border-t-2 border-[#3b608e] shrink-0 mt-auto bg-[#fdf2f2]">
-          {/* Label Column */}
-          <div className="col-span-3 bg-[#3b608e] text-white text-[9px] font-bold uppercase">
-            {[
-              isChinese ? "會社名" : "Company Name",
-              isChinese ? "郵便番號" : "Zip Code",
-              isChinese ? "住所 1" : "Address 1",
-              isChinese ? "住所 2" : "Address 2",
-              "T E L",
-              "F A X",
-              isChinese ? "免許番號" : "License No.",
-              isChinese ? "保證協會" : "Assoc.",
-              isChinese ? "網址 / Email" : "Web / Email"
-            ].map((l, i) => (
-              <div key={i} className={`h-6 flex items-center px-4 ${i !== 8 ? 'border-b border-white/20' : ''}`}>
-                {l}
+        {/* MODERN CLEAN FOOTER (NO TABLE) */}
+        <div className="bg-[#1e293b] text-white px-10 py-8 flex justify-between items-end shrink-0 mt-auto border-t border-white/10">
+          
+          {/* Brand/Identity */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 text-white font-black flex items-center justify-center text-2xl rounded shadow-lg">S</div>
+              <div>
+                <p className="font-black text-xl tracking-tight leading-none text-white">{companyInfo.name}</p>
+                <p className="text-[9px] text-indigo-400 mt-1 uppercase tracking-widest font-black">{companyInfo.license}</p>
               </div>
-            ))}
-          </div>
-          {/* Value Column */}
-          <div className="col-span-9 text-slate-900 text-[10px] font-bold">
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.name}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.zip}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.addr1}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.addr2}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.tel}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.fax}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900">{companyInfo.license}</div>
-            <div className="h-6 flex items-center px-4 border-b border-slate-900 text-[8px] leading-tight">
-              {companyInfo.assoc} / {companyInfo.branch}
             </div>
-            <div className="h-6 flex items-center px-4 text-blue-600 text-[9px] truncate">
-              {companyInfo.web} | {companyInfo.email}
+            <div className="text-[9px] text-slate-400 font-medium space-y-0.5">
+              <p>{companyInfo.assoc}</p>
+              <p>{companyInfo.branch}</p>
+            </div>
+          </div>
+
+          {/* Details & Contact */}
+          <div className="flex gap-10">
+            <div className="text-right space-y-4">
+              <div className="space-y-0.5">
+                <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Office Address</p>
+                <p className="text-[11px] font-bold text-slate-200">〒{companyInfo.zip} {companyInfo.addr1}</p>
+                <p className="text-[11px] font-bold text-slate-200">{companyInfo.addr2}</p>
+              </div>
+              <div className="flex gap-6 justify-end">
+                <div>
+                  <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Phone</p>
+                  <p className="text-[12px] font-black text-white">{companyInfo.tel}</p>
+                </div>
+                <div>
+                  <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase">Fax</p>
+                  <p className="text-[12px] font-black text-white">{companyInfo.fax}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col justify-end border-l border-white/10 pl-10">
+              <p className="text-[8px] text-indigo-400 font-black tracking-widest uppercase mb-1">Web & Mail</p>
+              <p className="text-[11px] font-black text-white">{companyInfo.web}</p>
+              <p className="text-[11px] font-bold text-indigo-300">{companyInfo.email}</p>
             </div>
           </div>
         </div>

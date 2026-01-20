@@ -24,11 +24,13 @@ export const extractAndTranslateMaisoku = async (
   
   const prompt = `You are an expert Real Estate Consultant. Extract and Translate EVERYTHING from this Japanese property flyer (Maisoku) into ${targetLang}.
 
+  CRITICAL IMAGE TASK:
+  Your output JSON should include "extractedImage" as the SAME base64 data provided, BUT your internal logic should focus on understanding the visual context.
+  
   STRICT TRANSLATION RULES:
   1. ABSOLUTELY NO JAPANESE characters in output. 
-  2. "restrictions": Identify "用途地域", "防火地域", "建物制限". Translate terms like "第一種中高層住居専用地域" or "準防火地域" fully.
-  3. "facilities": Translate equipment like "オートロック" (Auto-lock), "宅配ボックス" (Delivery Box), "システムキッチン" (System Kitchen).
-  4. Ensure price and fees include localized currency units.
+  2. "restrictions": Identify and translate zoning/building limits like "用途地域", "防火地域", "建蔽率/容積率" fully.
+  3. "facilities": Translate all equipment terms into ${targetLang}.
 
   JSON structure:
   {
@@ -47,7 +49,7 @@ export const extractAndTranslateMaisoku = async (
      "floor": "Floor level",
      "restrictions": "Zoning and Building Restrictions",
      "features": ["Feature 1", "Feature 2"],
-     "description": "Short summary"
+     "description": "Short marketing summary"
   }`;
 
   try {
