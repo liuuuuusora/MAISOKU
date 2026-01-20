@@ -9,11 +9,11 @@ export const extractAndTranslateMaisoku = async (
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("API_KEY_MISSING: 找不到 API 金鑰。請確認環境變數設定。");
+    throw new Error("API_KEY_MISSING: 找不到 API 金鑰。請在設定中添加 API_KEY 環境變數。");
   }
 
-  // Use the most stable recent flash model
-  const MODEL_NAME = 'gemini-2.0-flash-001';
+  // gemini-1.5-flash is currently the most reliable for high-volume free tier usage
+  const MODEL_NAME = 'gemini-1.5-flash';
   const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
@@ -71,15 +71,15 @@ export const extractAndTranslateMaisoku = async (
 
     return JSON.parse(response.text.trim()) as MaisokuData;
   } catch (error: any) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error details:", error);
     
-    // Check for quota exceeded (429)
-    if (error.message?.includes("429") || error.message?.includes("quota")) {
-      throw new Error("QUOTA_EXHAUSTED: API 使用量已達免費上限。請稍候 1-2 分鐘後再試一次，或更換 API Key。");
+    // Detailed check for 429 quota error
+    if (error.message?.includes("429") || error.status === "RESOURCE_EXHAUSTED") {
+      throw new Error("QUOTA_EXHAUSTED: 免費額度暫時用完。請「等待 60 秒」後再點擊一次，這是 Google 免費 API 的限制。");
     }
     
-    if (error.message?.includes("API_KEY_INVALID")) {
-      throw new Error("INVALID_KEY: API 金鑰無效。");
+    if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("403")) {
+      throw new Error("INVALID_KEY: API 金鑰無效或沒有權限，請確認 API Key 設定是否正確。");
     }
     
     throw new Error(error.message || "解析失敗。請確認圖片清晰度或稍後再試。");
