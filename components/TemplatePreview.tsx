@@ -4,13 +4,22 @@ import { MaisokuData, Language } from '../types';
 
 interface TemplatePreviewProps {
   data: MaisokuData;
-  originalImage: string | null;
+  originalImage: string | null; // This is the flyer
+  extraImages: string[]; // These are user-uploaded clean photos
   language: Language;
 }
 
-const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, language }) => {
+const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, extraImages, language }) => {
   const isChinese = language === Language.CHINESE;
   
+  // Decide which images to show. Priority: Extra 1, Extra 2, then Original Flyer
+  const displayImages = useMemo(() => {
+    let imgs = [...extraImages];
+    if (imgs.length === 0 && originalImage) imgs.push(originalImage);
+    if (imgs.length === 1 && originalImage && extraImages.length > 0) imgs.push(originalImage);
+    return imgs.slice(0, 2);
+  }, [extraImages, originalImage]);
+
   const labels = useMemo(() => ({
     price: isChinese ? "銷售價格" : "Listing Price",
     location: isChinese ? "所在地" : "Location",
@@ -26,8 +35,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
     restrictions: isChinese ? "建物限制" : "Restrictions",
     facilities: isChinese ? "物業設備" : "Facilities",
     description: isChinese ? "物業簡介" : "Description",
-    features: isChinese ? "物業特色" : "Key Features",
-    originalRef: isChinese ? "物業照片" : "Property Photo"
+    features: isChinese ? "物業特色" : "Key Features"
   }), [isChinese]);
 
   const companyInfo = useMemo(() => ({
@@ -56,63 +64,70 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
 
   return (
     <div className="preview-scaler-container">
-      <div className="print-area flex flex-col bg-white border border-slate-200 shadow-2xl overflow-hidden">
+      {/* Strict A4 dimensions for PDF stability */}
+      <div className="print-area flex flex-col bg-white border border-slate-100 shadow-2xl overflow-hidden relative" style={{ boxSizing: 'border-box' }}>
         
-        {/* HEADER: PREMIUM LIGHT */}
-        <div className="bg-slate-50 px-10 py-6 flex justify-between items-center shrink-0 border-b border-slate-200">
+        {/* HEADER: COMPACT */}
+        <div className="bg-slate-50 px-10 py-5 flex justify-between items-center shrink-0 border-b border-slate-200 h-[85px]">
           <div className="flex-1 border-l-4 border-indigo-600 pl-6">
-            <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase leading-none">{data.propertyName || "PROPERTY INFORMATION"}</h1>
-            <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] mt-2">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
+            <h1 className="text-xl font-black tracking-tight text-slate-800 uppercase leading-none truncate max-w-[600px]">{data.propertyName || "PROPERTY INFORMATION"}</h1>
+            <p className="text-[8px] text-slate-400 font-bold tracking-[0.2em] mt-1.5">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
           </div>
           <div className="text-right">
-            <p className="text-[9px] text-slate-400 font-black mb-1 uppercase tracking-widest">{labels.price}</p>
-            <p className="text-4xl font-black text-indigo-600 tabular-nums">{data.price}</p>
+            <p className="text-[8px] text-slate-400 font-black mb-0.5 uppercase tracking-widest">{labels.price}</p>
+            <p className="text-3xl font-black text-indigo-600 tabular-nums">{data.price}</p>
           </div>
         </div>
 
-        {/* CONTENT AREA */}
-        <div className="flex-1 p-10 grid grid-cols-12 gap-10 overflow-hidden bg-white">
+        {/* CONTENT AREA: 1:1 BALANCE */}
+        <div className="flex-1 p-8 grid grid-cols-2 gap-8 overflow-hidden bg-white">
           
-          {/* LEFT: IMAGE & DESC */}
-          <div className="col-span-5 flex flex-col gap-6">
-            <div className="aspect-[4/3] bg-slate-50 border border-slate-100 relative rounded-lg overflow-hidden flex items-center justify-center group shadow-sm">
-              {originalImage ? (
-                <img src={originalImage} alt="Property" className="w-full h-full object-contain" />
-              ) : (
-                <div className="text-slate-200 font-black text-xs uppercase tracking-widest">Image Placeholder</div>
+          {/* LEFT: TWO IMAGES & DESC */}
+          <div className="flex flex-col gap-5 overflow-hidden">
+            {/* Double Image Grid */}
+            <div className="grid grid-cols-2 gap-3 h-[220px]">
+              {displayImages.map((img, idx) => (
+                <div key={idx} className="bg-slate-50 border border-slate-100 rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
+                  <img src={img} alt="Property" className="w-full h-full object-contain" />
+                </div>
+              ))}
+              {displayImages.length < 2 && (
+                <div className="bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center">
+                  <span className="text-[10px] text-slate-200 font-bold uppercase tracking-widest">No Image</span>
+                </div>
               )}
             </div>
 
-            <div className="flex-1 space-y-6">
+            <div className="flex-1 flex flex-col gap-5 overflow-hidden">
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-4 h-[1px] bg-slate-200"></span> {labels.description}
+                <h3 className="text-[9px] font-black text-slate-400 mb-1.5 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-3 h-[1px] bg-slate-200"></span> {labels.description}
                 </h3>
-                <p className="text-[11px] leading-relaxed text-slate-600 font-medium italic">"{data.description}"</p>
+                <p className="text-[10px] leading-relaxed text-slate-600 font-medium italic line-clamp-3">"{data.description}"</p>
               </section>
               
-              <section>
-                <h3 className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-4 h-[1px] bg-slate-200"></span> {labels.facilities}
+              <section className="flex-1 overflow-hidden">
+                <h3 className="text-[9px] font-black text-slate-400 mb-1.5 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-3 h-[1px] bg-slate-200"></span> {labels.facilities}
                 </h3>
-                <div className="text-[10px] text-slate-500 leading-relaxed font-semibold">
+                <div className="text-[9px] text-slate-500 leading-normal font-semibold overflow-hidden line-clamp-5">
                   {data.facilities || "-"}
                 </div>
               </section>
             </div>
           </div>
 
-          {/* RIGHT: SPECS TABLE */}
-          <div className="col-span-7 flex flex-col gap-6">
-            <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm">
+          {/* RIGHT: SPECS TABLE & FEATURES */}
+          <div className="flex flex-col gap-6 overflow-hidden">
+            <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm shrink-0">
               {tableRows.map((row, ridx) => (
-                <div key={ridx} className="flex min-h-[38px]">
+                <div key={ridx} className="flex min-h-[34px]">
                   {row.map((cell, cidx) => (
                     <div key={cidx} className={`flex border-b border-slate-100 ${cell.span === 2 ? 'w-full' : 'w-1/2'} ${ridx === tableRows.length - 1 ? 'border-b-0' : ''}`}>
-                      <div className="w-24 bg-slate-50/80 text-[9px] font-black flex items-center px-4 text-slate-400 uppercase shrink-0 border-r border-slate-100">
+                      <div className="w-20 bg-slate-50/80 text-[8px] font-black flex items-center px-3 text-slate-400 uppercase shrink-0 border-r border-slate-100">
                         {cell.l}
                       </div>
-                      <div className={`flex-1 flex items-center px-4 py-2 text-[11px] font-bold ${cell.h ? 'text-indigo-600' : 'text-slate-700'}`}>
+                      <div className={`flex-1 flex items-center px-3 py-1.5 text-[10px] font-bold truncate ${cell.h ? 'text-indigo-600' : 'text-slate-700'}`}>
                         {cell.v || "-"}
                       </div>
                     </div>
@@ -121,13 +136,13 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
               ))}
             </div>
 
-            <div className="flex-1 flex flex-col pt-2">
-              <h3 className="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em] flex items-center gap-3">
-                <span className="w-8 h-[1px] bg-indigo-500"></span> {labels.features}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <h3 className="text-[9px] font-black text-slate-400 mb-3 uppercase tracking-[0.2em] flex items-center gap-3">
+                <span className="w-6 h-[1px] bg-indigo-500"></span> {labels.features}
               </h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                {(data.features || []).map((f, i) => (
-                  <div key={i} className="text-[10px] flex items-center gap-2 text-slate-600 font-bold p-2.5 bg-slate-50/50 rounded-md border border-slate-100">
+              <div className="grid grid-cols-2 gap-2 overflow-hidden">
+                {(data.features || []).slice(0, 8).map((f, i) => (
+                  <div key={i} className="text-[9px] flex items-center gap-2 text-slate-600 font-bold p-2 bg-slate-50/50 rounded border border-slate-100 truncate">
                     <span className="text-indigo-400 text-[6px]">●</span> {f}
                   </div>
                 ))}
@@ -136,49 +151,40 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
           </div>
         </div>
 
-        {/* CORPORATE FOOTER: LIGHT, BALANCED, AIRY DESIGN */}
-        <div className="bg-slate-50 border-t border-slate-200 px-10 py-8 grid grid-cols-3 gap-8 shrink-0 mt-auto">
+        {/* CORPORATE FOOTER: LIGHT & STABLE AT BOTTOM */}
+        <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 grid grid-cols-3 gap-8 shrink-0 h-[120px] items-center">
           
-          {/* 1. Left: Brand Identity */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white border border-slate-200 text-indigo-600 font-black flex items-center justify-center text-2xl rounded-lg shadow-sm">S</div>
-              <div>
-                <p className="font-black text-lg tracking-tight leading-tight text-slate-800">{companyInfo.name}</p>
-                <p className="text-[9px] text-indigo-500 font-black tracking-widest uppercase mt-0.5">{companyInfo.license}</p>
-              </div>
-            </div>
-            <div className="text-[8px] text-slate-400 font-bold leading-relaxed space-y-0.5 mt-1">
-              <p>{companyInfo.assoc}</p>
-              <p>{companyInfo.branch}</p>
+          {/* Identity */}
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white border border-slate-200 text-indigo-600 font-black flex items-center justify-center text-xl rounded-lg shadow-sm shrink-0">S</div>
+            <div className="overflow-hidden">
+              <p className="font-black text-base tracking-tight leading-tight text-slate-800 truncate">{companyInfo.name}</p>
+              <p className="text-[8px] text-indigo-500 font-black tracking-widest uppercase mt-0.5 truncate">{companyInfo.license}</p>
             </div>
           </div>
 
-          {/* 2. Middle: Address Info */}
-          <div className="border-x border-slate-200 px-8 flex flex-col justify-center gap-1.5">
-            <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase mb-1">Office Location</p>
-            <p className="text-[11px] font-bold text-slate-600 flex items-center gap-2">
-              <span className="text-indigo-400">〒</span> {companyInfo.zip}
-            </p>
-            <p className="text-[11px] font-bold text-slate-600">{companyInfo.addr1}</p>
-            <p className="text-[11px] font-bold text-slate-600">{companyInfo.addr2}</p>
+          {/* Address */}
+          <div className="border-x border-slate-200 px-6 flex flex-col justify-center gap-0.5 h-full">
+            <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase mb-0.5">Location</p>
+            <p className="text-[10px] font-bold text-slate-600 truncate">〒{companyInfo.zip} {companyInfo.addr1}</p>
+            <p className="text-[10px] font-bold text-slate-600 truncate">{companyInfo.addr2}</p>
           </div>
 
-          {/* 3. Right: Contact & Digital */}
-          <div className="flex flex-col justify-between pl-2">
-            <div className="grid grid-cols-2 gap-4">
+          {/* Contact */}
+          <div className="flex flex-col justify-center h-full pl-2">
+            <div className="flex justify-between mb-2">
               <div>
-                <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase">Phone</p>
-                <p className="text-[11px] font-black text-slate-700">{companyInfo.tel}</p>
+                <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase">Phone</p>
+                <p className="text-[10px] font-black text-slate-700">{companyInfo.tel}</p>
               </div>
-              <div>
-                <p className="text-[8px] text-slate-300 font-black tracking-widest uppercase">Fax</p>
-                <p className="text-[11px] font-black text-slate-700">{companyInfo.fax}</p>
+              <div className="text-right">
+                <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase">Fax</p>
+                <p className="text-[10px] font-black text-slate-700">{companyInfo.fax}</p>
               </div>
             </div>
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-0.5">
-              <p className="text-[10px] font-bold text-indigo-600">{companyInfo.web}</p>
-              <p className="text-[10px] font-bold text-slate-500">{companyInfo.email}</p>
+            <div className="pt-1.5 border-t border-slate-100 flex justify-between items-center">
+              <p className="text-[9px] font-bold text-indigo-600">{companyInfo.web}</p>
+              <p className="text-[9px] font-bold text-slate-400">{companyInfo.email}</p>
             </div>
           </div>
         </div>
