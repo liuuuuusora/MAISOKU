@@ -11,6 +11,11 @@ export interface MaisokuData {
   repairFund: string;
   features: string[];
   description: string;
+  coverageRatio: string;
+  floorAreaRatio: string;
+  facilities: string;
+  floor: string;
+  restrictions: string; // 建物限制/用途地域
 }
 
 export enum Language {

@@ -7,7 +7,6 @@
     <title>マイソク AI 翻譯機</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1040/1040216.png">
     
     <script type="importmap">
 {
@@ -23,46 +22,78 @@
 </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style>
-        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
-        #root { min-height: 100vh; display: flex; flex-direction: column; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-area { padding: 0 !important; margin: 0 !important; box-shadow: none !important; width: 210mm !important; height: auto !important; }
-            body { background-color: white !important; }
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; background-color: #f8fafc; }
+        #root { min-height: 100vh; }
+
+        .preview-scaler-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1.5rem;
+            min-height: 300px;
         }
+
+        .print-area {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transform-origin: top center;
+            flex-shrink: 0;
+            transition: transform 0.2s ease-out;
+        }
+
+        /* Enhanced responsive scaling for better preview */
+        @media screen and (min-width: 1201px) {
+          .print-area { transform: scale(0.95); }
+          .preview-scaler-container { height: 850px; }
+        }
+        @media screen and (max-width: 1200px) {
+          .print-area { transform: scale(0.8); }
+          .preview-scaler-container { height: 720px; }
+        }
+        @media screen and (max-width: 1024px) {
+          .print-area { transform: scale(0.65); }
+          .preview-scaler-container { height: 580px; }
+        }
+        @media screen and (max-width: 768px) {
+          .print-area { transform: scale(0.5); }
+          .preview-scaler-container { height: 450px; }
+        }
+        @media screen and (max-width: 480px) {
+          .print-area { transform: scale(0.32); }
+          .preview-scaler-container { height: 300px; }
+        }
+
+        @media print {
+            @page { size: A4 landscape; margin: 0; }
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .preview-scaler-container { padding: 0 !important; height: auto !important; display: block !important; }
+            .print-area { 
+              padding: 0 !important; 
+              margin: 0 !important; 
+              box-shadow: none !important; 
+              width: 297mm !important; 
+              height: 210mm !important; 
+              transform: none !important;
+              position: static !important;
+              border: none !important;
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <div id="root">
-      <!-- Loading fallback to confirm page is working -->
-      <div id="app-loading" style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; gap:16px; color:#6366f1;">
-        <svg style="width:48px; height:48px; animation: spin 1s linear infinite;" viewBox="0 0 24 24">
-          <circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-          <path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p style="font-weight:600;">Loading AI Application...</p>
-      </div>
-    </div>
-    
-    <script type="module">
-      import "./index.tsx";
-      // Once index.tsx executes, the loading div will be replaced by React
-    </script>
-
-    <style>
-      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').catch(err => console.debug('SW silent fail'));
-        });
-      }
-    </script>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
