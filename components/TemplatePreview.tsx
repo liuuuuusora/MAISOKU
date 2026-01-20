@@ -33,7 +33,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage }
                 Property Visual
               </div>
             )}
-            <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 text-xs rounded">
+            <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 text-xs rounded no-print">
               Original Reference
             </div>
           </div>
@@ -93,10 +93,9 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage }
         </div>
       </div>
 
-      {/* Corporate Footer Template Area */}
+      {/* Corporate Footer Area */}
       <div className="mt-auto pt-10">
         <div className="border-t-2 border-slate-200 pt-6 flex items-start gap-4">
-          {/* Company Branding Box Based on User Image */}
           <div className="flex-1 border-2 border-slate-900 p-4 flex items-center gap-6">
              <div className="bg-slate-900 text-white font-black text-3xl p-3 h-16 w-16 flex items-center justify-center">S</div>
              <div>
