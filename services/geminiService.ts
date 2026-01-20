@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Language, MaisokuData } from "../types";
 
-// Simple in-memory cache to prevent re-processing identical images in the same session
+// 快取機制：避免重複請求同一張圖
 const processingCache = new Map<string, MaisokuData>();
 
 export const extractAndTranslateMaisoku = async (
@@ -12,44 +12,39 @@ export const extractAndTranslateMaisoku = async (
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("API_KEY_MISSING: 請檢查環境變數中的 API_KEY 設定。");
+    throw new Error("API_KEY_MISSING: 找不到 API 金鑰。");
   }
 
-  // Check cache first
   const cacheKey = `${base64Image.substring(0, 100)}_${targetLang}`;
   if (processingCache.has(cacheKey)) {
     return processingCache.get(cacheKey)!;
   }
 
-  // Switching to 'gemini-1.5-flash-latest' as it often has a more reliable free-tier capacity for vision tasks
-  const MODEL_NAME = 'gemini-1.5-flash-latest';
+  // 使用最新且最穩定的 gemini-2.0-flash
+  const MODEL_NAME = 'gemini-2.0-flash';
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `
-    Analyze this Japanese real estate flyer (Maisoku). 
-    Extract key details and translate into ${targetLang}.
-    Return JSON ONLY:
-    {
-       "propertyName": "string",
-       "price": "string",
-       "location": "string",
-       "access": "string",
-       "layout": "string",
-       "size": "string",
-       "builtYear": "string",
-       "managementFee": "string",
-       "repairFund": "string",
-       "features": ["string"],
-       "description": "string"
-    }
-  `;
+  const prompt = `你是一個專業的不動產分析師。請分析這張日本不動產廣告(マイソク)，提取資訊並翻譯成${targetLang}。
+  必須嚴格遵守以下 JSON 格式回傳，不要包含任何額外文字：
+  {
+     "propertyName": "物業名稱",
+     "price": "價格(含幣值)",
+     "location": "地址",
+     "access": "交通資訊",
+     "layout": "格局(如2LDK)",
+     "size": "面積",
+     "builtYear": "建築年份",
+     "managementFee": "管理費",
+     "repairFund": "修繕積立金",
+     "features": ["特點1", "特點2", "特點3"],
+     "description": "簡短的推廣描述"
+  }`;
 
   try {
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: [
         {
-          role: "user",
           parts: [
             { inlineData: { data: base64Image, mimeType: 'image/jpeg' } },
             { text: prompt }
@@ -57,57 +52,42 @@ export const extractAndTranslateMaisoku = async (
         }
       ],
       config: {
-        temperature: 0.1, // Lower temperature for more stable JSON output
+        // 使用 JSON 模式確保回傳格式正確
         responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            propertyName: { type: Type.STRING },
-            price: { type: Type.STRING },
-            location: { type: Type.STRING },
-            access: { type: Type.STRING },
-            layout: { type: Type.STRING },
-            size: { type: Type.STRING },
-            builtYear: { type: Type.STRING },
-            managementFee: { type: Type.STRING },
-            repairFund: { type: Type.STRING },
-            features: { type: Type.ARRAY, items: { type: Type.STRING } },
-            description: { type: Type.STRING },
-          },
-          required: ["propertyName", "price", "location"]
-        }
+        temperature: 0.2
       }
     });
 
-    const text = response.text;
-    if (!text) {
-      throw new Error("AI 回傳了空的結果。圖片可能太模糊或包含受限內容。");
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("EMPTY_RESPONSE: AI 回傳內容為空。");
     }
 
-    const result = JSON.parse(text.trim()) as MaisokuData;
-    
-    // Store in cache
-    processingCache.set(cacheKey, result);
-    
-    return result;
+    try {
+      const result = JSON.parse(responseText.trim()) as MaisokuData;
+      processingCache.set(cacheKey, result);
+      return result;
+    } catch (parseError) {
+      console.error("JSON Parse Error:", responseText);
+      throw new Error("解析 AI 回傳格式失敗，請重試。");
+    }
+
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     
-    // Improved error messages for the user
-    const errorMsg = error.message || "";
-    
-    if (errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("RESOURCES_EXHAUSTED")) {
-      throw new Error("【額度已滿】Google 免費版 API 每分鐘僅支援少量圖片辨識。請務必「等待 2 分鐘」不要操作後再試一次，或更換一個 Google 帳號重新申請 Key。");
+    const status = error.status || "";
+    const message = error.message || "";
+
+    // 處理 429 流量限制
+    if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
+      throw new Error("【流量限制】您的 API Key 免費額度已達上限。請「等待 60-120 秒」再點擊。如果持續出現，建議換一個 Google 帳號申請 Key，或在 Google Cloud 啟動付費模式（每張圖約 $0.1 台幣）。");
     }
     
-    if (errorMsg.includes("404")) {
-      throw new Error("【模型錯誤】找不到 AI 模型。請確認您的 API Key 是否支援 Gemini 1.5 系列。");
+    // 處理 404 模型找不到
+    if (message.includes("404") || message.includes("not found")) {
+      throw new Error("【模型錯誤】模型 ID 'gemini-2.0-flash' 無法使用。這可能是因為您的 API Key 權限受限，請確認是否為 API Key 所在的專案已啟用 Gemini API。");
     }
 
-    if (errorMsg.includes("400")) {
-      throw new Error("【請求錯誤】圖片數據過大或格式不正確。請嘗試截圖較小的區域上傳。");
-    }
-
-    throw new Error(`分析失敗: ${errorMsg}`);
+    throw new Error(`分析失敗: ${message}`);
   }
 };
