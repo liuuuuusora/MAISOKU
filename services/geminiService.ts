@@ -9,9 +9,11 @@ export const extractAndTranslateMaisoku = async (
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("API_KEY_MISSING: APIキーが設定されていません。環境変数を確認してください。");
+    throw new Error("API_KEY_MISSING: 找不到 API 金鑰。請確認環境變數設定。");
   }
 
+  // Use the most stable recent flash model
+  const MODEL_NAME = 'gemini-2.0-flash-001';
   const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
@@ -34,7 +36,7 @@ export const extractAndTranslateMaisoku = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp', // Using a stable flash model version for reliability
+      model: MODEL_NAME,
       contents: {
         parts: [
           { inlineData: { data: base64Image, mimeType: 'image/jpeg' } },
@@ -64,15 +66,22 @@ export const extractAndTranslateMaisoku = async (
     });
 
     if (!response.text) {
-      throw new Error("EMPTY_RESPONSE: AIからの応答が空です。画像の解像度を上げてください。");
+      throw new Error("EMPTY_RESPONSE: AI 傳回內容為空。請嘗試上傳更清晰的圖片。");
     }
 
     return JSON.parse(response.text.trim()) as MaisokuData;
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    if (error.message?.includes("API_KEY_INVALID")) {
-      throw new Error("INVALID_KEY: APIキーが無効です。");
+    
+    // Check for quota exceeded (429)
+    if (error.message?.includes("429") || error.message?.includes("quota")) {
+      throw new Error("QUOTA_EXHAUSTED: API 使用量已達免費上限。請稍候 1-2 分鐘後再試一次，或更換 API Key。");
     }
-    throw error;
+    
+    if (error.message?.includes("API_KEY_INVALID")) {
+      throw new Error("INVALID_KEY: API 金鑰無效。");
+    }
+    
+    throw new Error(error.message || "解析失敗。請確認圖片清晰度或稍後再試。");
   }
 };
