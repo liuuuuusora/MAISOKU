@@ -6,11 +6,14 @@ import TemplatePreview from './components/TemplatePreview.tsx';
 
 const App: React.FC = () => {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [propertyImage, setPropertyImage] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState<Language>(Language.CHINESE);
   const [data, setData] = useState<MaisokuData | null>(null);
   const [state, setState] = useState<ProcessingState>({ isProcessing: false, status: '待機中' });
   const [cooldown, setCooldown] = useState(0);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const propertyImgRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -31,7 +34,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const processFile = async (file: File) => {
+  const handleSourceFile = async (file: File) => {
     if (file.type === 'application/pdf') {
       const pdfjs = getPdfLib();
       if (!pdfjs) {
@@ -66,6 +69,14 @@ const App: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePropertyImage = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPropertyImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const processMaisoku = async () => {
@@ -114,47 +125,82 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 flex flex-col gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <h2 className="font-bold mb-3 flex items-center gap-2 text-slate-700 text-sm uppercase tracking-wider">
-                <span className="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px]">1</span>
-                上傳日文資料
-              </h2>
-              <div 
-                className="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 transition-all"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} className="hidden" ref={fileInputRef} />
-                <p className="text-slate-400 text-xs">點擊或拖入圖片/PDF</p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+          {/* STEP 1: Source Document */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+            <h2 className="font-bold mb-3 flex items-center gap-2 text-slate-700 text-xs uppercase tracking-wider">
+              <span className="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px]">1</span>
+              上傳日文原始檔 (PDF/JPG)
+            </h2>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 transition-all flex-1 flex flex-col justify-center ${originalImage ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-200'}`}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input type="file" accept="image/*,application/pdf" onChange={(e) => e.target.files?.[0] && handleSourceFile(e.target.files[0])} className="hidden" ref={fileInputRef} />
+              {originalImage ? (
+                <div className="flex flex-col items-center">
+                  <img src={originalImage} className="h-16 w-auto object-contain mb-2 rounded border shadow-sm" />
+                  <p className="text-indigo-600 text-[10px] font-bold underline">更換檔案</p>
+                </div>
+              ) : (
+                <p className="text-slate-400 text-[11px]">點擊上傳日文傳單</p>
+              )}
             </div>
-            {originalImage && <img src={originalImage} className="mt-2 h-16 w-auto object-contain self-center opacity-50 border rounded" />}
           </div>
 
+          {/* STEP 2: Optional Clean Image */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+            <h2 className="font-bold mb-3 flex items-center gap-2 text-slate-700 text-xs uppercase tracking-wider">
+              <span className="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px]">2</span>
+              上傳純淨物業圖片 (非必填)
+            </h2>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 transition-all flex-1 flex flex-col justify-center ${propertyImage ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200'}`}
+              onClick={() => propertyImgRef.current?.click()}
+            >
+              <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handlePropertyImage(e.target.files[0])} className="hidden" ref={propertyImgRef} />
+              {propertyImage ? (
+                <div className="flex flex-col items-center">
+                  <img src={propertyImage} className="h-16 w-auto object-contain mb-2 rounded border shadow-sm" />
+                  <p className="text-emerald-600 text-[10px] font-bold underline">更換圖片</p>
+                </div>
+              ) : (
+                <p className="text-slate-400 text-[11px]">上傳更清晰的照片取代傳單圖</p>
+              )}
+            </div>
+          </div>
+
+          {/* ACTION BUTTON */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center">
             <button 
               onClick={processMaisoku}
               disabled={!originalImage || state.isProcessing || cooldown > 0}
-              className={`w-full py-3 rounded-lg font-bold transition-all ${
+              className={`w-full py-4 rounded-lg font-black text-sm uppercase tracking-widest transition-all shadow-lg ${
                 state.isProcessing || cooldown > 0
-                ? 'bg-slate-100 text-slate-400' 
-                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                ? 'bg-slate-100 text-slate-400 shadow-none' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0'
               }`}
             >
               {cooldown > 0 ? `冷卻中 (${cooldown}s)` : state.isProcessing ? `正在翻譯...` : '生成翻譯件'}
             </button>
-            {state.error && <p className="text-red-500 text-[10px] mt-2 text-center">{state.error}</p>}
+            {state.error && <p className="text-red-500 text-[10px] mt-3 text-center font-bold px-2">{state.error}</p>}
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center items-start overflow-x-auto pb-8">
+        <div className="flex-1 flex justify-center items-start overflow-x-auto pb-12">
           {data ? (
-            <TemplatePreview data={data} originalImage={originalImage} language={targetLang} />
+            <TemplatePreview 
+              data={data} 
+              originalImage={propertyImage || originalImage} 
+              language={targetLang} 
+            />
           ) : (
-            <div className="no-print w-full max-w-4xl bg-white border border-slate-200 rounded-2xl py-24 flex flex-col items-center justify-center text-slate-300 text-center">
-              <svg className="w-16 h-16 opacity-10 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-              <p className="font-bold text-slate-400">尚未生成翻譯預覽</p>
+            <div className="no-print w-full max-w-4xl bg-white border border-slate-200 rounded-2xl py-32 flex flex-col items-center justify-center text-slate-300 text-center shadow-sm">
+              <div className="bg-slate-50 p-6 rounded-full mb-6">
+                <svg className="w-12 h-12 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </div>
+              <p className="font-black text-slate-400 uppercase tracking-widest text-sm">尚未生成翻譯預覽</p>
+              <p className="text-xs text-slate-300 mt-2">請完成上方上傳步驟並點擊生成按鈕</p>
             </div>
           )}
         </div>

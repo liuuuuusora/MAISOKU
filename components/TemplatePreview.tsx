@@ -27,7 +27,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
     facilities: isChinese ? "物業設備" : "Facilities",
     description: isChinese ? "物業簡介" : "Description",
     features: isChinese ? "物業特色" : "Key Features",
-    originalRef: isChinese ? "參考原圖" : "Original"
+    originalRef: isChinese ? "物業照片" : "Property Photo"
   }), [isChinese]);
 
   const companyInfo = useMemo(() => ({
@@ -56,10 +56,10 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
 
   return (
     <div className="preview-scaler-container">
-      <div className="print-area flex flex-col bg-white border border-slate-200 shadow-xl overflow-hidden">
+      <div className="print-area flex flex-col bg-white border border-slate-200 shadow-2xl overflow-hidden">
         
-        {/* HEADER: CLEAN & HIGH-END */}
-        <div className="bg-[#f8fafc] px-10 py-6 flex justify-between items-center shrink-0 border-b border-slate-200">
+        {/* HEADER: PREMIUM LIGHT */}
+        <div className="bg-slate-50 px-10 py-6 flex justify-between items-center shrink-0 border-b border-slate-200">
           <div className="flex-1 border-l-4 border-indigo-600 pl-6">
             <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase leading-none">{data.propertyName || "PROPERTY INFORMATION"}</h1>
             <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] mt-2">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
@@ -79,7 +79,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
               {originalImage ? (
                 <img src={originalImage} alt="Property" className="w-full h-full object-contain" />
               ) : (
-                <div className="text-slate-200 font-black text-xs uppercase tracking-widest">Image Area</div>
+                <div className="text-slate-200 font-black text-xs uppercase tracking-widest">Image Placeholder</div>
               )}
             </div>
 
