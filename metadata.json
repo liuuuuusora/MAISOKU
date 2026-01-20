@@ -1,5 +1,5 @@
 {
-  "name": "Maisoku AI Translator & Generator",
-  "description": "An AI-powered tool that converts Japanese Maisoku (real estate flyers) into professional multi-language templates with automated data extraction and image recognition.",
+  "name": "Maisoku AI Translator PWA",
+  "description": "Japanese property flyer translator and PDF generator with AI and offline support.",
   "requestFramePermissions": []
 }
