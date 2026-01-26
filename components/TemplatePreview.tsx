@@ -67,25 +67,25 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
       {/* Strict A4 dimensions for PDF stability */}
       <div className="print-area flex flex-col bg-white border border-slate-100 shadow-2xl overflow-hidden relative" style={{ boxSizing: 'border-box' }}>
         
-        {/* HEADER: COMPACT */}
-        <div className="bg-slate-50 px-10 py-5 flex justify-between items-center shrink-0 border-b border-slate-200 h-[85px]">
-          <div className="flex-1 border-l-4 border-indigo-600 pl-6">
-            <h1 className="text-xl font-black tracking-tight text-slate-800 uppercase leading-none truncate max-w-[600px]">{data.propertyName || "PROPERTY INFORMATION"}</h1>
-            <p className="text-[8px] text-slate-400 font-bold tracking-[0.2em] mt-1.5">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
+        {/* HEADER */}
+        <div className="bg-slate-50 px-10 py-4 flex justify-between items-center shrink-0 border-b border-slate-200 min-h-[85px]">
+          <div className="flex-1 border-l-4 border-indigo-600 pl-6 pr-4">
+            <h1 className="text-xl font-black tracking-tight text-slate-800 uppercase leading-tight break-words line-clamp-2">{data.propertyName || "PROPERTY INFORMATION"}</h1>
+            <p className="text-[8px] text-slate-400 font-bold tracking-[0.2em] mt-1">PROPERTY INVESTMENT PORTFOLIO BY SORA</p>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <p className="text-[8px] text-slate-400 font-black mb-0.5 uppercase tracking-widest">{labels.price}</p>
-            <p className="text-3xl font-black text-indigo-600 tabular-nums">{data.price}</p>
+            <p className="text-3xl font-black text-indigo-600 tabular-nums break-keep whitespace-nowrap">{data.price}</p>
           </div>
         </div>
 
-        {/* CONTENT AREA: 1:1 BALANCE */}
+        {/* CONTENT AREA */}
         <div className="flex-1 p-8 grid grid-cols-2 gap-8 overflow-hidden bg-white">
           
-          {/* LEFT: TWO IMAGES & DESC */}
-          <div className="flex flex-col gap-5 overflow-hidden">
+          {/* LEFT: IMAGES & TEXT DATA */}
+          <div className="flex flex-col gap-4 overflow-hidden">
             {/* Double Image Grid */}
-            <div className="grid grid-cols-2 gap-3 h-[220px]">
+            <div className="grid grid-cols-2 gap-3 h-[200px] shrink-0">
               {displayImages.map((img, idx) => (
                 <div key={idx} className="bg-slate-50 border border-slate-100 rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
                   <img src={img} alt="Property" className="w-full h-full object-contain" />
@@ -98,19 +98,19 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
               )}
             </div>
 
-            <div className="flex-1 flex flex-col gap-5 overflow-hidden">
-              <section>
-                <h3 className="text-[9px] font-black text-slate-400 mb-1.5 uppercase tracking-widest flex items-center gap-2">
+            <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+              <section className="shrink-0">
+                <h3 className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest flex items-center gap-2">
                   <span className="w-3 h-[1px] bg-slate-200"></span> {labels.description}
                 </h3>
-                <p className="text-[10px] leading-relaxed text-slate-600 font-medium italic line-clamp-3">"{data.description}"</p>
+                <p className="text-[9px] leading-relaxed text-slate-600 font-medium italic break-words">"{data.description}"</p>
               </section>
               
               <section className="flex-1 overflow-hidden">
-                <h3 className="text-[9px] font-black text-slate-400 mb-1.5 uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest flex items-center gap-2">
                   <span className="w-3 h-[1px] bg-slate-200"></span> {labels.facilities}
                 </h3>
-                <div className="text-[9px] text-slate-500 leading-normal font-semibold overflow-hidden line-clamp-5">
+                <div className="text-[9px] text-slate-500 leading-normal font-semibold break-words overflow-y-auto max-h-[120px] scrollbar-hide">
                   {data.facilities || "-"}
                 </div>
               </section>
@@ -118,16 +118,16 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
           </div>
 
           {/* RIGHT: SPECS TABLE & FEATURES */}
-          <div className="flex flex-col gap-6 overflow-hidden">
+          <div className="flex flex-col gap-4 overflow-hidden">
             <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm shrink-0">
               {tableRows.map((row, ridx) => (
-                <div key={ridx} className="flex min-h-[34px]">
+                <div key={ridx} className="flex min-h-[32px]">
                   {row.map((cell, cidx) => (
                     <div key={cidx} className={`flex border-b border-slate-100 ${cell.span === 2 ? 'w-full' : 'w-1/2'} ${ridx === tableRows.length - 1 ? 'border-b-0' : ''}`}>
-                      <div className="w-20 bg-slate-50/80 text-[8px] font-black flex items-center px-3 text-slate-400 uppercase shrink-0 border-r border-slate-100">
+                      <div className="w-20 bg-slate-50/80 text-[7.5px] font-black flex items-center px-3 text-slate-400 uppercase shrink-0 border-r border-slate-100 py-1">
                         {cell.l}
                       </div>
-                      <div className={`flex-1 flex items-center px-3 py-1.5 text-[10px] font-bold truncate ${cell.h ? 'text-indigo-600' : 'text-slate-700'}`}>
+                      <div className={`flex-1 flex items-center px-3 py-1.5 text-[9px] font-bold break-words whitespace-normal leading-tight ${cell.h ? 'text-indigo-600' : 'text-slate-700'}`}>
                         {cell.v || "-"}
                       </div>
                     </div>
@@ -137,13 +137,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden">
-              <h3 className="text-[9px] font-black text-slate-400 mb-3 uppercase tracking-[0.2em] flex items-center gap-3">
+              <h3 className="text-[9px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em] flex items-center gap-3">
                 <span className="w-6 h-[1px] bg-indigo-500"></span> {labels.features}
               </h3>
-              <div className="grid grid-cols-2 gap-2 overflow-hidden">
-                {(data.features || []).slice(0, 8).map((f, i) => (
-                  <div key={i} className="text-[9px] flex items-center gap-2 text-slate-600 font-bold p-2 bg-slate-50/50 rounded border border-slate-100 truncate">
-                    <span className="text-indigo-400 text-[6px]">●</span> {f}
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 overflow-hidden">
+                {(data.features || []).slice(0, 10).map((f, i) => (
+                  <div key={i} className="text-[8.5px] flex items-start gap-2 text-slate-600 font-bold p-1.5 bg-slate-50/50 rounded border border-slate-100">
+                    <span className="text-indigo-400 text-[6px] mt-1 shrink-0">●</span> 
+                    <span className="break-words leading-tight">{f}</span>
                   </div>
                 ))}
               </div>
@@ -151,28 +152,28 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
           </div>
         </div>
 
-        {/* CORPORATE FOOTER: LIGHT & STABLE AT BOTTOM */}
-        <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 grid grid-cols-3 gap-8 shrink-0 h-[120px] items-center">
+        {/* CORPORATE FOOTER */}
+        <div className="bg-slate-50 border-t border-slate-200 px-10 py-5 grid grid-cols-3 gap-8 shrink-0 h-[115px] items-center">
           
           {/* Identity */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 overflow-hidden">
             <div className="w-10 h-10 bg-white border border-slate-200 text-indigo-600 font-black flex items-center justify-center text-xl rounded-lg shadow-sm shrink-0">S</div>
             <div className="overflow-hidden">
-              <p className="font-black text-base tracking-tight leading-tight text-slate-800 truncate">{companyInfo.name}</p>
-              <p className="text-[8px] text-indigo-500 font-black tracking-widest uppercase mt-0.5 truncate">{companyInfo.license}</p>
+              <p className="font-black text-sm tracking-tight leading-tight text-slate-800 break-words">{companyInfo.name}</p>
+              <p className="text-[8px] text-indigo-500 font-black tracking-widest uppercase mt-0.5 break-words">{companyInfo.license}</p>
             </div>
           </div>
 
           {/* Address */}
-          <div className="border-x border-slate-200 px-6 flex flex-col justify-center gap-0.5 h-full">
-            <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase mb-0.5">Location</p>
-            <p className="text-[10px] font-bold text-slate-600 truncate">〒{companyInfo.zip} {companyInfo.addr1}</p>
-            <p className="text-[10px] font-bold text-slate-600 truncate">{companyInfo.addr2}</p>
+          <div className="border-x border-slate-200 px-6 flex flex-col justify-center gap-0.5 h-full overflow-hidden">
+            <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase mb-0.5 shrink-0">Office Location</p>
+            <p className="text-[9px] font-bold text-slate-600 leading-tight">〒{companyInfo.zip} {companyInfo.addr1}</p>
+            <p className="text-[9px] font-bold text-slate-600 leading-tight">{companyInfo.addr2}</p>
           </div>
 
           {/* Contact */}
           <div className="flex flex-col justify-center h-full pl-2">
-            <div className="flex justify-between mb-2">
+            <div className="flex justify-between mb-1.5 shrink-0">
               <div>
                 <p className="text-[7px] text-slate-300 font-black tracking-widest uppercase">Phone</p>
                 <p className="text-[10px] font-black text-slate-700">{companyInfo.tel}</p>
@@ -182,9 +183,9 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ data, originalImage, 
                 <p className="text-[10px] font-black text-slate-700">{companyInfo.fax}</p>
               </div>
             </div>
-            <div className="pt-1.5 border-t border-slate-100 flex justify-between items-center">
-              <p className="text-[9px] font-bold text-indigo-600">{companyInfo.web}</p>
-              <p className="text-[9px] font-bold text-slate-400">{companyInfo.email}</p>
+            <div className="pt-1 border-t border-slate-100 flex justify-between items-center overflow-hidden">
+              <p className="text-[8px] font-bold text-indigo-600 truncate mr-2">{companyInfo.web}</p>
+              <p className="text-[8px] font-bold text-slate-400 truncate">{companyInfo.email}</p>
             </div>
           </div>
         </div>

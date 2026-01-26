@@ -50,6 +50,15 @@
             box-sizing: border-box;
         }
 
+        /* Hide scrollbars but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         /* Responsive scaling */
         @media screen and (min-width: 1201px) {
           .print-area { transform: scale(0.95); }
@@ -93,6 +102,10 @@
               left: 0 !important;
               border: none !important;
               page-break-inside: avoid !important;
+              overflow: hidden !important;
+            }
+            .scrollbar-hide {
+              overflow: hidden !important;
             }
         }
     </style>
